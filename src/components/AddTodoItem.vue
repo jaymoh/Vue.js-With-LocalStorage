@@ -15,24 +15,60 @@
     import uuid from 'uuid/v4';
     export default {
         name: "AddTodoItem",
+        props: ['edit_data'],
         data(){
             return {
-                title: ''
+                title: '',
+                id: '',
+                edit: false
             }
         },
         methods: {
             addTodo(e){
                 e.preventDefault();
-                const newTodoItem={
-                    title: this.title,
-                    id: uuid()
+                if(this.edit === false){
+                    //add new item
+                    const newTodoItem = {
+                        title: this.title,
+                        id: uuid(),
+                        completed: false
+                    }
+                    //send to parent
+                    this.$emit('add-todo-event', newTodoItem);
+                    //clear the field
+                    this.title='';
+                }else{
+                    //edit item
+                    const todoItem = {
+                        title: this.title,
+                        id: this.id,
+                        completed: false
+                    }
+                    //send to parent
+                    this.$emit('edit-todo-event', todoItem);
+                    //clear the field
+                    this.title='';
+                    this.edit === false;
                 }
-                //send to parent
-                this.$emit('add-todo-event', newTodoItem);
-                //clear the field
-                this.title='';
             }
-        }
+        },
+        watch: {
+            edit_data: {
+                handler() {
+                    this.title = this.edit_data.title;
+                    this.id = this.edit_data.id;
+                    this.edit = true;
+                },
+                deep: true,
+            },
+            title:{
+                handler(){
+                    if(this.title === ''){
+                        this.edit = false;
+                    }
+                }
+            }
+        },
     }
 </script>
 
